@@ -1,5 +1,6 @@
 'use strict'
 
+const { EventEmitter } = require('events')
 const pull = require('pull-stream')
 const timeout = require('async/timeout')
 const lp = require('pull-length-prefixed')
@@ -15,13 +16,14 @@ const utils = require('./utils')
 /**
  * Handle network operations for the dht
  */
-class Network {
+class Network extends EventEmitter{
   /**
    * Create a new network.
    *
    * @param {KadDHT} self
    */
   constructor (self) {
+    super()
     this.dht = self
     this.readMessageTimeout = c.READ_MESSAGE_TIMEOUT
     this._log = utils.logger(this.dht.peerInfo.id, 'net')
@@ -121,6 +123,9 @@ class Network {
         if (err) {
           return this._log.error('Failed to add to the routing table', err)
         }
+
+        console.log('kad emit')
+        this.emit('peer', peer)
 
         this._log('added to the routing table: %s', peer.id.toB58String())
       })
